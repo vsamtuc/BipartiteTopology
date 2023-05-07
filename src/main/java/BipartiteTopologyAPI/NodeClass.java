@@ -33,7 +33,7 @@ public class NodeClass implements Serializable {
         processMethod = checkAuxiliaryMethod(ProcessOp.class);
         mergeMethod = checkAuxiliaryMethod(MergeOp.class);
         queryMethod = checkAuxiliaryMethod(QueryOp.class);
-        createProxyClass();
+        createProxyClass();//was here
     }
 
     /**
