@@ -1,4 +1,4 @@
-package BipartiteTopologyAPI;
+package bistro;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,10 +14,7 @@ public class TestingTests {
 
     @Test
     void testTesting() {
-
         System.out.println("Hello world");
-
-
     }
 
 

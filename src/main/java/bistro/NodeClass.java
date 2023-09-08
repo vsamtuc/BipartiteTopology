@@ -54,12 +54,12 @@ public class NodeClass implements Serializable {
 
         for (AnnotatedType i : ifaces) {
             assert i.getType() instanceof Class<?>;
-            Class<?> icls = (Class) i.getType();
+            Class<?> icls = (Class<?>) i.getType();
 
             if (!i.isAnnotationPresent(Remote.class) && !icls.isAnnotationPresent(RemoteProxy.class))
                 continue;
             check(pxy_ifc == null, "Multiple remote interfaces on wrapped class %s", wrappedClass);
-            pxy_ifc = (Class) i.getType();
+            pxy_ifc = (Class<?>) i.getType();
         }
         check(pxy_ifc != null, "No remote interfaces on wrapped class %s", wrappedClass);
 
