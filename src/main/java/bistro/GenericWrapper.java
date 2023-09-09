@@ -146,8 +146,10 @@ public class GenericWrapper implements Node {
         // Map proxy creation.
         int numberOfSpokes = network.describe().getNumberOfSpokes();
         int numberOfHubs = network.describe().getNumberOfHubs();
-        for (int i = 0; i < ((nodeId.isHub()) ? numberOfSpokes : numberOfHubs); i++) {
-            NodeId proxyIP = new NodeId((nodeId.isHub()) ? NodeType.SPOKE : NodeType.HUB, i);
+        int numberOfPeers = nodeId.isHub() ? numberOfSpokes : numberOfHubs;
+        NodeType peerType = nodeId.isHub() ? NodeType.SPOKE : NodeType.HUB;
+        for (int i = 0; i < numberOfPeers; i++) {
+            NodeId proxyIP = new NodeId(peerType, i);
             proxyMap.put(i, GenericProxy.forNode(proxyInterface, this, network, proxyIP));
         }
 
@@ -184,7 +186,7 @@ public class GenericWrapper implements Node {
                                     " into the wrapped class %s",
                             nodeClass.getWrappedClass()), e);
         }
-        assert !proxyMap.isEmpty();
+        assert numberOfPeers ==0 || !proxyMap.isEmpty();
     }
 
     @Override
