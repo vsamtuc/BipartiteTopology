@@ -88,7 +88,7 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
             NodeInstance<SpokeIfc, QueryIfc>[] hubs
         )
     {
-        return create(0, hubs, spokes);
+        return create(0, spokes, hubs);
     }
 
     
