@@ -1,8 +1,6 @@
 package bistro.engine.thread;
 
 import java.io.Serializable;
-import java.util.Map;
-
 import bistro.NodeInstance;
 import bistro.interfaces.Network;
 import bistro.operations.RemoteCallIdentifier;
