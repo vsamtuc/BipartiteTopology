@@ -15,7 +15,7 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
     Thread nodeThread = null;
 
     // Used to store messages to be delivered to the node
-    BlockingDeque<Serializable> messageQueue;
+    BlockingDeque<TMessage> messageQueue;
     
     /**
      * Create a thread-based wrapper for a node instance.
@@ -33,7 +33,7 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
      * Deliver a message to this node
      * @param message  The message object to deliver.
      */
-    public void deliverMessage(Serializable message) {
+    public void deliverMessage(TMessage message) {
         try {
             messageQueue.putLast(message);
         } catch(InterruptedException ex) {

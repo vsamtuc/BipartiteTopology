@@ -1,13 +1,10 @@
 package bistro.engine.thread;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Map;
 
 import bistro.NodeInstance;
-import bistro.interfaces.Mergeable;
 import bistro.interfaces.Network;
-import bistro.interfaces.Node;
 import bistro.operations.RemoteCallIdentifier;
 import bistro.sites.NetworkDescriptor;
 import bistro.sites.NodeId;
@@ -21,32 +18,42 @@ import bistro.sites.NodeType;
  */
 public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
 
-
+    int networkId = 0;
     ThreadNode<HubIfc, QueryIfc> spokes[];  // List of spoke nodes
     ThreadNode<SpokeIfc, QueryIfc> hubs[];  // List of hub nodes
 
 
-
-    protected ThreadNetwork(int nspokes, int nhubs) {
-        //spokes = new ThreadNode<HubIfc, QueryIfc>[nspokes];
-        //hubs = new ThreadNode<HubIfc, QueryIfc>[nhubs];
+    /**
+     * Initialize the network object. 
+     * 
+     * This is a protected constructor. In order to create a network object, use the
+     * static method 'create'.
+     * 
+     * @param nspokes
+     * @param nhubs
+     */
+    protected ThreadNetwork(int networkId, int nspokes, int nhubs) {
+        this.networkId = networkId;
         spokes = new ThreadNode[nspokes];
         hubs = new ThreadNode[nhubs];
     }
 
     /**
-     * Create and return a bistro ThreadNetwork object, with the given nodes.
+     * Create and return a bistro ThreadNetwork object, with the given id and nodes.
      * 
+     * @param networkId   The id of the network.
      * @param spokes      Array of spoke nodes, these are instances of NodeInstance<HubIfc, QueryIfc>.
      * @param hubs        Array of hub nodes, these are instances of   NodeInstance<SpokeIfc, QueryIfc>
      * @return            The fully initialized ThreadNetwork object.
      */
     public static <SpokeIfc, HubIfc, QueryIfc> ThreadNetwork<SpokeIfc, HubIfc, QueryIfc> 
-        create(NodeInstance<HubIfc, QueryIfc>[] spokes, 
-        NodeInstance<SpokeIfc, QueryIfc>[] hubs) 
+        create(
+            int networkId,
+            NodeInstance<HubIfc, QueryIfc>[] spokes, 
+            NodeInstance<SpokeIfc, QueryIfc>[] hubs)
     {
         // Create the ThreadNetwork object
-        ThreadNetwork<SpokeIfc, HubIfc, QueryIfc> tnet = new ThreadNetwork<>(spokes.length, hubs.length);
+        ThreadNetwork<SpokeIfc, HubIfc, QueryIfc> tnet = new ThreadNetwork<>(networkId, spokes.length, hubs.length);
 
         // Create the spoke wrappers
         for(int i=0; i<spokes.length; i++) {
@@ -65,21 +72,64 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
         return tnet;
     }
 
-    @Override
-    public void send(NodeId source, NodeId destination, RemoteCallIdentifier rpc, Serializable message) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'send'");
+
+    /**
+     * Create and return a bistro ThreadNetwork object, with the given nodes.
+     * 
+     * The network id is initialized to 0.
+     * 
+     * @param spokes      Array of spoke nodes, these are instances of NodeInstance<HubIfc, QueryIfc>.
+     * @param hubs        Array of hub nodes, these are instances of   NodeInstance<SpokeIfc, QueryIfc>
+     * @return            The fully initialized ThreadNetwork object.
+     */
+    public static <SpokeIfc, HubIfc, QueryIfc> ThreadNetwork<SpokeIfc, HubIfc, QueryIfc> 
+        create(
+            NodeInstance<HubIfc, QueryIfc>[] spokes, 
+            NodeInstance<SpokeIfc, QueryIfc>[] hubs
+        )
+    {
+        return create(0, hubs, spokes);
+    }
+
+    
+    public void setNetworkId(int networkId) {
+        this.networkId = networkId;
+    }
+
+    /** 
+     * Return the network id of this network
+     * @return the network id
+     */
+    public int getNetworkId() { return networkId; }
+
+
+    public int numberOfSpokes() { return spokes.length; }
+    public int numberOfHubs() { return hubs.length; }
+
+    public ThreadNode<HubIfc, QueryIfc> getSpoke(int i) { return spokes[i]; }
+    public ThreadNode<SpokeIfc, QueryIfc> getHub(int i) { return hubs[i]; }
+
+    public ThreadNode<?, QueryIfc> getNode(NodeId nodeId) {
+        var array = switch(nodeId.getNodeType()) {
+            case HUB -> hubs;
+            case SPOKE -> spokes;
+        };
+        var pos = nodeId.getNodeId();
+        if(pos<0 || pos>=array.length)
+            throw new RuntimeException("Node "+nodeId.toString()+" illegal (bad id)");
+        return array[pos];        
     }
 
     @Override
-    public void broadcast(NodeId source, Map<NodeId, RemoteCallIdentifier> rpcMap, Serializable message) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'broadcast'");
+    public void send(NodeId source, NodeId destination, RemoteCallIdentifier rpc, Serializable message) {
+        ThreadNode<?,?> dest = getNode(destination);
+        TMessage msg = new TMessage(source, destination, rpc, message);
+        dest.deliverMessage(msg);
     }
 
     @Override
     public NetworkDescriptor describe() {
-        return new NetworkDescriptor(0, spokes.length, hubs.length);
+        return new NetworkDescriptor(networkId, spokes.length, hubs.length);
     }
 
 }
