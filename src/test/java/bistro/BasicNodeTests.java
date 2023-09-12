@@ -2,6 +2,7 @@ package bistro;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -106,10 +107,17 @@ public class BasicNodeTests {
         TNode tnode = new TNode();
         Node node = new GenericWrapper(new NodeId(NodeType.SPOKE, 0), tnode, tnet);
 
+        /*
         for(int i=0;i<10; i++) {
             Integer[] tuple = new Integer[] {i};
             node.receiveTuple(tuple);
         }
+        */
+
+        IntStream
+            .range(0,10)
+            .mapToObj((i)->new Integer[]{i})
+            .forEach(node::receiveTuple);
 
         assertEquals(10, tnode.countStream);
         assertEquals(45, tnode.sumStream);
