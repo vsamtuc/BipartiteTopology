@@ -1,12 +1,11 @@
 package bistro.engine.thread;
 
-import java.io.Serializable;
-import java.util.Queue;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import bistro.GenericWrapper;
 import bistro.NodeInstance;
+import bistro.engine.Message;
 import bistro.sites.NodeId;
 
 public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
@@ -15,7 +14,7 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
     Thread nodeThread = null;
 
     // Used to store messages to be delivered to the node
-    BlockingDeque<TMessage> messageQueue;
+    BlockingDeque<Message> messageQueue;
     
     /**
      * Create a thread-based wrapper for a node instance.
@@ -33,7 +32,7 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
      * Deliver a message to this node
      * @param message  The message object to deliver.
      */
-    public void deliverMessage(TMessage message) {
+    public void deliverMessage(Message message) {
         try {
             messageQueue.putLast(message);
         } catch(InterruptedException ex) {
