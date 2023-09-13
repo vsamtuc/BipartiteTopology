@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import bistro.annotations.InitOp;
 import bistro.annotations.MergeOp;
@@ -12,11 +13,11 @@ import bistro.annotations.ProcessOp;
 import bistro.annotations.QueryOp;
 import bistro.annotations.RemoteOp;
 import bistro.annotations.RemoteProxy;
-import bistro.engine.thread.ThreadNetwork;
-import bistro.engine.thread.ThreadNode;
+import bistro.engine.serial.SerialNetwork;
+import bistro.engine.serial.SerialNode;
 
-public class ThreadEngineTests {
-    
+public class SerialEngineTests {
+
 
     @RemoteProxy
     public interface TNodeIF {
@@ -34,11 +35,15 @@ public class ThreadEngineTests {
         public int countStream=0;
         public int sumStream=0;
         public int field=0;
+        public int field_set_times=0;
 
         public TNode() { }
 
         @Override
-        public void set_field(Integer val) { field = val; }
+        public void set_field(Integer val) { 
+            field_set_times ++;
+            field = val; 
+        }
 
         public int get_field() { return field; }
 
@@ -57,12 +62,20 @@ public class ThreadEngineTests {
     }
 
 
-    @Test
-    void testCreateNetwork2by2() {
-        var spokes = new TNode[] { new TNode(), new TNode() };
-        var hubs = new TNode[] { new TNode(), new TNode() };
+    static TNode[] create_tnode_array(int tnodes) {
+        TNode[] nodes = new TNode[tnodes];
+        for(int i=0; i<tnodes; i++) nodes[i] = new TNode();
+        return nodes;
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({"1,1", "2,2", "2,1", "4,2", "1,3", "1,0"})
+    void testCreateNetworkNbyN(int nspokes, int nhubs) {
+        var spokes = create_tnode_array(nspokes);
+        var hubs = create_tnode_array(nhubs);
         // <TNodeIF, TNodeIF, TQuerier>
-        var tnet = ThreadNetwork.create(spokes, hubs);
+        var tnet = SerialNetwork.create(spokes, hubs);
 
         assertEquals(spokes.length, tnet.numberOfSpokes());
         assertEquals(hubs.length, tnet.numberOfHubs());
@@ -72,7 +85,7 @@ public class ThreadEngineTests {
         assertEquals(hubs.length, desc.getNumberOfHubs());
 
         for(int i=0;i<spokes.length; i++) {
-            ThreadNode<TNodeIF, TQuerier> wrapper = tnet.getSpoke(i);
+            SerialNode<TNodeIF, TQuerier> wrapper = tnet.getSpoke(i);
             assertTrue(spokes[i] == wrapper.getNode());
             assertSame(tnet, wrapper.getNetwork()); 
 
@@ -86,10 +99,16 @@ public class ThreadEngineTests {
             }
         }
 
+        tnet.deliverMessages();
+
         for(int i=0;i<hubs.length; i++) {
-            ThreadNode<TNodeIF, TQuerier> wrapper = tnet.getHub(i);
-            assertTrue(hubs[i] == wrapper.getNode());
+            final SerialNode<TNodeIF, TQuerier> wrapper = tnet.getHub(i);
+            final TNode node = (TNode) wrapper.getNode();
+            assertTrue(hubs[i] == node);
             assertSame(tnet, wrapper.getNetwork()); 
+            assertEquals(100, node.get_field());
+            assertEquals(tnet.numberOfSpokes(), node.field_set_times);        
         }
     }
+        
 }

@@ -6,8 +6,6 @@ import java.util.Queue;
 
 import bistro.NodeInstance;
 import bistro.engine.Message;
-import bistro.engine.serial.SerialNetwork;
-import bistro.engine.serial.SerialNode;
 import bistro.interfaces.Network;
 import bistro.operations.RemoteCallIdentifier;
 import bistro.sites.NetworkDescriptor;
@@ -62,7 +60,7 @@ public class SerialNetwork<SpokeIfc, HubIfc, QueryIfc> implements Network {
         }
 
         // Create the hub wrappers
-        for(int i=0; i<spokes.length; i++) {
+        for(int i=0; i<hubs.length; i++) {
             NodeId nid = new NodeId(NodeType.HUB, i);
             var node = new SerialNode<SpokeIfc, QueryIfc>(nid, hubs[i], tnet);
             tnet.hubs[i] = node;
@@ -121,9 +119,8 @@ public class SerialNetwork<SpokeIfc, HubIfc, QueryIfc> implements Network {
 
     @Override
     public void send(NodeId source, NodeId destination, RemoteCallIdentifier rpc, Serializable message) {
-        SerialNode<?,?> dest = getNode(destination);
         Message msg = new Message(source, destination, rpc, message);
-        dest.deliverMessage(msg);
+        messageQueue.offer(msg);
     }
 
     @Override
@@ -131,5 +128,17 @@ public class SerialNetwork<SpokeIfc, HubIfc, QueryIfc> implements Network {
         return new NetworkDescriptor(networkId, spokes.length, hubs.length);
     }
     
+    public void deliverMessages() {
+        while(true) {
+            Message m = messageQueue.poll();
+            if(m==null) return;
+            getNode(m.destination).receiveMsg(m.source, m.rpc, m.message);
+        }
+    }
+
+    public void processTuple(int spokeId, Serializable tuple) {
+        getSpoke(spokeId).receiveTuple(tuple);
+        deliverMessages();
+    }
 
 }
