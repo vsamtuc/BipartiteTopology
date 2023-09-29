@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bistro.engine.Message;
-import bistro.engine.thread.QueueEvent;
+
 import bistro.operations.RemoteCallIdentifier;
 import org.junit.jupiter.api.Test;
 
