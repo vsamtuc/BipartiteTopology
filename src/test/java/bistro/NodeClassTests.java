@@ -50,7 +50,7 @@ public class NodeClassTests {
 
     @Test
     void testNodeClassUnique() {
-        NodeClass tnc = NodeClass.forClass(TNode.class);
+        NodeClass tnc = NodeClass.forClass(TNode.class);//?????????
 
         // Calling forNode again should yield same object
         assertSame(tnc, NodeClass.forClass(TNode.class));

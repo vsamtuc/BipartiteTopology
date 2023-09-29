@@ -2,10 +2,11 @@ package bistro.engine;
 
 import java.io.Serializable;
 
+import bistro.engine.thread.QueueEvent;
 import bistro.operations.RemoteCallIdentifier;
 import bistro.sites.NodeId;
 
-public class Message {
+public class Message implements Serializable, QueueEvent {
     final public NodeId source;
     final public NodeId destination;
     final public RemoteCallIdentifier rpc;
@@ -16,5 +17,9 @@ public class Message {
         this.destination = destination;
         this.rpc = rpc;
         this.message = message;
+    }
+
+    public  Serializable getMessage() {
+        return message;
     }
 }
