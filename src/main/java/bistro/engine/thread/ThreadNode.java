@@ -1,11 +1,13 @@
 package bistro.engine.thread;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.concurrent.*;
 
 import bistro.GenericWrapper;
 import bistro.NodeInstance;
 import bistro.engine.Message;
+import bistro.engine.Tuple;
 import bistro.sites.NodeId;
 
 public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
@@ -35,7 +37,7 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
      * Deliver a message to this node
      * @param message  The message object to deliver.
      */
-    public void deliverMessage(Message message) {
+    public void deliverMessage(QueueEvent message) {
         try {
             messageQueue.putLast(message);
         } catch(InterruptedException ex) {
@@ -45,21 +47,18 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
     }
 
     public void HandleQueueEvent(QueueEvent q){
-        if(q instanceof Message){
-            try {
-                Field field = q.getClass().getDeclaredField("message");
-
-
-                Object value= field.get(q);
-                NodeId nodeid= ((Message) q).destination;
-                System.out.println("Node id: "+ nodeid+ " and the message is: "+ value);
-            } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
+        if (q==null){
+            return;
         }
-
+        if(q instanceof Message){
+                Message m= ((Message) q);
+                //System.out.println("Node id: "+ this.nodeId+ " and the message is: "+ m.getMessage());
+            this.receiveMsg(m.source,m.rpc, m.message);
+        } else if (q instanceof Tuple) {
+            Tuple t= ((Tuple) q);
+            Serializable[] args= {t.tuple}; //CHECK WITH PROFESSOR
+            this.receiveTuple(args);
+        }
     }
 
 

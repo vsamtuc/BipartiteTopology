@@ -48,14 +48,20 @@ public class ThreadEngineTests {
 
         public int get_field() { return field; }
 
+
         @ProcessOp
-        public void process(Integer val) {
+        public void process(Integer[] val) {
+
             countStream += 1;
-            sumStream += val;
+            for(int i=val.length -1; i>=0; i--) {
+                sumStream += val[i];
+            }
         }
 
         @InitOp
         public void init() { field = 42; }
+
+
         @MergeOp
         public void merge() { }
         @QueryOp
@@ -64,6 +70,52 @@ public class ThreadEngineTests {
 
 
     @Test
+    void testSimpleProcess() {
+        var spokes = new TNode[] { new TNode(), new TNode() };
+        var hubs = new TNode[] { new TNode(), new TNode() };
+        // <TNodeIF, TNodeIF, TQuerier>
+        var tnet = ThreadNetwork.create(spokes, hubs);
+
+        assertEquals(spokes.length, tnet.numberOfSpokes());
+        assertEquals(hubs.length, tnet.numberOfHubs());
+
+        var desc = tnet.describe();
+        assertEquals(spokes.length, desc.getNumberOfSpokes());
+        assertEquals(hubs.length, desc.getNumberOfHubs());
+
+        for(int i=0;i<spokes.length; i++) {
+            ThreadNode<TNodeIF, TQuerier> wrapper = tnet.getSpoke(i);
+            assertTrue(spokes[i] == wrapper.getNode());
+            assertSame(tnet, wrapper.getNetwork());
+
+            assertTrue(wrapper.getNode() instanceof TNode);
+            TNode node = (TNode)  wrapper.getNode();
+
+            Integer arr[]= {i+1, i+2, i+3, i+4, i+5};
+
+            tnet.sendTuple(tnet.getSpoke(i).getNodeId(), arr);
+        }
+
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        for(int i=0;i<hubs.length; i++) {
+            assertEquals(1,spokes[i].countStream);
+            if (i==0) {
+
+                assertEquals(15, spokes[0].sumStream);
+            }if(i==1){
+                assertEquals(20, spokes[1].sumStream);
+            }
+            System.out.println("Spoke "+i +" Times Accessed: "+spokes[i].countStream+" Sum: "+spokes[i].sumStream);
+        }
+
+
+
+    }
+@Test
     void testCreateNetwork2by2() {
         var spokes = new TNode[] { new TNode(), new TNode() };
         var hubs = new TNode[] { new TNode(), new TNode() };
@@ -80,7 +132,7 @@ public class ThreadEngineTests {
         for(int i=0;i<spokes.length; i++) {
             ThreadNode<TNodeIF, TQuerier> wrapper = tnet.getSpoke(i);
             assertTrue(spokes[i] == wrapper.getNode());
-            assertSame(tnet, wrapper.getNetwork()); 
+            assertSame(tnet, wrapper.getNetwork());
 
             assertTrue(wrapper.getNode() instanceof TNode);
             TNode node = (TNode)  wrapper.getNode();
@@ -92,12 +144,49 @@ public class ThreadEngineTests {
             }
         }
 
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         for(int i=0;i<hubs.length; i++) {
             ThreadNode<TNodeIF, TQuerier> wrapper = tnet.getHub(i);
             assertTrue(hubs[i] == wrapper.getNode());
-            assertSame(tnet, wrapper.getNetwork()); 
+            assertSame(tnet, wrapper.getNetwork());
+            assertEquals(100,hubs[i].get_field());
+            System.out.println("Hub: "+ hubs[i]+" field: "+ hubs[i].get_field());
         }
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

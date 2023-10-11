@@ -3,6 +3,7 @@ package bistro.engine.thread;
 import java.io.Serializable;
 import bistro.NodeInstance;
 import bistro.engine.Message;
+import bistro.engine.Tuple;
 import bistro.interfaces.Network;
 import bistro.operations.RemoteCallIdentifier;
 import bistro.sites.NetworkDescriptor;
@@ -125,6 +126,14 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
         Message msg = new Message(source, destination, rpc, message);
         dest.deliverMessage(msg);
     }
+
+    public void sendTuple(NodeId spokeId, Serializable[] tuple){
+        ThreadNode<?,?> dest = getNode(spokeId);
+        Tuple tup= new Tuple(spokeId, tuple);
+        dest.deliverMessage(tup);
+    }
+
+
 
     @Override
     public NetworkDescriptor describe() {
