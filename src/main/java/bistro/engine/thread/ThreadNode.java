@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 import bistro.GenericWrapper;
 import bistro.NodeInstance;
 import bistro.engine.Message;
+import bistro.engine.Query;
 import bistro.engine.Tuple;
 import bistro.sites.NodeId;
 
@@ -55,9 +56,18 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
                 //System.out.println("Node id: "+ this.nodeId+ " and the message is: "+ m.getMessage());
             this.receiveMsg(m.source,m.rpc, m.message);
         } else if (q instanceof Tuple) {
+
+
             Tuple t= ((Tuple) q);
-            Serializable[] args= {t.tuple}; //CHECK WITH PROFESSOR
+            Serializable[] args= {t.tuple};
             this.receiveTuple(args);
+
+        }else if (q instanceof Query) {
+
+            Query query= ((Query) q);
+            //Serializable[] args= {query.Query};
+            this.receiveQuery(query.id, (int[])query.Query);
+
         }
     }
 

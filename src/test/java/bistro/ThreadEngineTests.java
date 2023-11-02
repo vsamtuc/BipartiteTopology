@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+import bistro.engine.Tuple;
 import bistro.operations.RemoteCallIdentifier;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +33,13 @@ public class ThreadEngineTests {
 
     @RemoteProxy
     public interface TQuerier {
-        
+        @RemoteOp
+        void sendQueryResponse();
     }
+
+
+
+
 
     @RemoteProxy
     static public class TNode extends NodeInstance<TNodeIF, TQuerier> implements TNodeIF {
@@ -47,7 +53,6 @@ public class ThreadEngineTests {
         public void set_field(Integer val) { field = val; }
 
         public int get_field() { return field; }
-
 
         @ProcessOp
         public void process(Integer[] val) {
@@ -65,8 +70,58 @@ public class ThreadEngineTests {
         @MergeOp
         public void merge() { }
         @QueryOp
-        public void query() { }
+        public void query( long queryId, int qT, int[] arr) {
+            System.out.println(arr[0] + " " + arr[1] + " " + arr[2]);
+            getQuerier().sendQueryResponse();
+
+
+        }
     }
+
+
+
+    @Test
+    void testSimpleQuery(){
+
+
+
+        var spokes = new TNode[] { new TNode(), new TNode() };
+        var hubs = new TNode[] { new TNode(), new TNode() };
+        // <TNodeIF, TNodeIF, TQuerier>
+        var tnet = ThreadNetwork.create(spokes, hubs);
+
+        assertEquals(spokes.length, tnet.numberOfSpokes());
+        assertEquals(hubs.length, tnet.numberOfHubs());
+
+        var desc = tnet.describe();
+        assertEquals(spokes.length, desc.getNumberOfSpokes());
+        assertEquals(hubs.length, desc.getNumberOfHubs());
+        int[] arr={0,1,2};
+        //Object[] obj= {arr};
+        tnet.sendQuery(tnet.getSpoke(0).getNodeId(), new RemoteCallIdentifier(), arr );
+
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     @Test
@@ -93,6 +148,7 @@ public class ThreadEngineTests {
 
             Integer arr[]= {i+1, i+2, i+3, i+4, i+5};
 
+
             tnet.sendTuple(tnet.getSpoke(i).getNodeId(), arr);
         }
 
@@ -111,8 +167,6 @@ public class ThreadEngineTests {
             }
             System.out.println("Spoke "+i +" Times Accessed: "+spokes[i].countStream+" Sum: "+spokes[i].sumStream);
         }
-
-
 
     }
 @Test

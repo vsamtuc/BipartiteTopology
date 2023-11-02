@@ -1,8 +1,12 @@
 package bistro.engine.thread;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 import bistro.NodeInstance;
 import bistro.engine.Message;
+import bistro.engine.Query;
 import bistro.engine.Tuple;
 import bistro.interfaces.Network;
 import bistro.operations.RemoteCallIdentifier;
@@ -21,6 +25,7 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
     int networkId = 0;
     ThreadNode<HubIfc, QueryIfc> spokes[];  // List of spoke nodes
     ThreadNode<SpokeIfc, QueryIfc> hubs[];  // List of hub nodes
+
 
 
     /**
@@ -120,20 +125,41 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
         return array[pos];        
     }
 
+
+    public void sendQueryResponse( Serializable response){
+        Query query= ((Query) response);
+
+        System.out.println("Why i am here so many times");
+    }
+
+
     @Override
     public void send(NodeId source, NodeId destination, RemoteCallIdentifier rpc, Serializable message) {
+        if(destination == null){
+
+
+            sendQueryResponse(message);
+        }
         ThreadNode<?,?> dest = getNode(destination);
         Message msg = new Message(source, destination, rpc, message);
         dest.deliverMessage(msg);
+
+
+
     }
 
     public void sendTuple(NodeId spokeId, Serializable[] tuple){
         ThreadNode<?,?> dest = getNode(spokeId);
         Tuple tup= new Tuple(spokeId, tuple);
         dest.deliverMessage(tup);
+
     }
 
-
+public void sendQuery(NodeId spokeId, RemoteCallIdentifier rpc, Serializable query){
+        ThreadNode<?,?> dest = getNode(spokeId);
+        Query q= new Query(spokeId, rpc, query);
+        dest.deliverMessage(q);
+}
 
     @Override
     public NetworkDescriptor describe() {

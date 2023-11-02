@@ -11,14 +11,19 @@ public class RemoteCallIdentifier implements Serializable {
     String operation;
     long callNumber;
 
+
+    //Tuple?
     public RemoteCallIdentifier() {
         this(null, null, -1);
     }
 
+
+    //Query?
     public RemoteCallIdentifier(long callNumber) {
         this(CallType.RESPONSE, null, callNumber);
     }
 
+    //Message?
     public RemoteCallIdentifier(CallType callType, String operation, long callNumber) {
         this.callType = callType;
         this.operation = operation;
