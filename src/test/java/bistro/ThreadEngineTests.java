@@ -34,7 +34,7 @@ public class ThreadEngineTests {
     @RemoteProxy
     public interface TQuerier {
         @RemoteOp
-        void sendQueryResponse();
+        void sendQueryResponse(String response);
     }
 
 
@@ -69,10 +69,12 @@ public class ThreadEngineTests {
 
         @MergeOp
         public void merge() { }
+
+
         @QueryOp
         public void query( long queryId, int qT, int[] arr) {
             System.out.println(arr[0] + " " + arr[1] + " " + arr[2]);
-            getQuerier().sendQueryResponse();
+            getQuerier().sendQueryResponse("Hello from TNode");
 
 
         }
@@ -111,19 +113,6 @@ public class ThreadEngineTests {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Test
     void testSimpleProcess() {
         var spokes = new TNode[] { new TNode(), new TNode() };
@@ -146,8 +135,7 @@ public class ThreadEngineTests {
             assertTrue(wrapper.getNode() instanceof TNode);
             TNode node = (TNode)  wrapper.getNode();
 
-            Integer arr[]= {i+1, i+2, i+3, i+4, i+5};
-
+            Integer[] arr = {i+1, i+2, i+3, i+4, i+5};
 
             tnet.sendTuple(tnet.getSpoke(i).getNodeId(), arr);
         }

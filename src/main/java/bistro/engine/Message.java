@@ -7,6 +7,8 @@ import bistro.operations.RemoteCallIdentifier;
 import bistro.sites.NodeId;
 
 public class Message implements Serializable, QueueEvent {
+
+
     final public NodeId source;
     final public NodeId destination;
     final public RemoteCallIdentifier rpc;

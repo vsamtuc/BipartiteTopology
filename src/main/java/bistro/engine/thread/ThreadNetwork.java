@@ -127,9 +127,9 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
 
 
     public void sendQueryResponse( Serializable response){
-        Query query= ((Query) response);
 
-        System.out.println("Why i am here so many times");
+
+        System.out.println(response);
     }
 
 
@@ -137,14 +137,13 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
     public void send(NodeId source, NodeId destination, RemoteCallIdentifier rpc, Serializable message) {
         if(destination == null){
 
-
             sendQueryResponse(message);
+        }else {
+            ThreadNode<?, ?> dest = getNode(destination);
+            Message msg = new Message(source, destination, rpc, message);
+            dest.deliverMessage(msg);
+
         }
-        ThreadNode<?,?> dest = getNode(destination);
-        Message msg = new Message(source, destination, rpc, message);
-        dest.deliverMessage(msg);
-
-
 
     }
 
@@ -152,7 +151,6 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
         ThreadNode<?,?> dest = getNode(spokeId);
         Tuple tup= new Tuple(spokeId, tuple);
         dest.deliverMessage(tup);
-
     }
 
 public void sendQuery(NodeId spokeId, RemoteCallIdentifier rpc, Serializable query){

@@ -12,7 +12,7 @@ public class Query  implements Serializable, QueueEvent{
     static long generateId=0;
 
     final public RemoteCallIdentifier rpc;
-    final public Serializable Query;
+    final public Serializable mes;
 
     final public long id=generateId();
 
@@ -20,7 +20,7 @@ public class Query  implements Serializable, QueueEvent{
     public Query(NodeId source, RemoteCallIdentifier rpc, Serializable Query) {
         this.source = source;
         this.rpc = rpc;
-        this.Query = Query;
+        this.mes = Query;
     }
 
 

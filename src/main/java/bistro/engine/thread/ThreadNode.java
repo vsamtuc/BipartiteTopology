@@ -66,7 +66,7 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
 
             Query query= ((Query) q);
             //Serializable[] args= {query.Query};
-            this.receiveQuery(query.id, (int[])query.Query);
+            this.receiveQuery(query.id, (int[])query.mes);
 
         }
     }
