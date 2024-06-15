@@ -127,22 +127,22 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
 
 
     public void sendQueryResponse( Serializable response){
-
-
-        System.out.println(response);
+        if(response instanceof  String)
+            System.out.println((String) response);
     }
 
 
     @Override
     public void send(NodeId source, NodeId destination, RemoteCallIdentifier rpc, Serializable message) {
         if(destination == null){
-
-            sendQueryResponse(message);
+            if (message instanceof Object[]) {
+                Object[] messagetrue = (Object[])message;//
+                sendQueryResponse((String)messagetrue[0]);
+            }
         }else {
             ThreadNode<?, ?> dest = getNode(destination);
             Message msg = new Message(source, destination, rpc, message);
             dest.deliverMessage(msg);
-
         }
 
     }

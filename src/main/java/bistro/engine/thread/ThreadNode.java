@@ -1,7 +1,6 @@
 package bistro.engine.thread;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.concurrent.*;
 
 import bistro.GenericWrapper;
@@ -31,7 +30,7 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
     public ThreadNode(NodeId nodeId, NodeInstance<RIfc, QIfc> node, ThreadNetwork network) {
         super(nodeId, node, network);
         messageQueue = new LinkedBlockingDeque<>();
-        start();
+        //start();
     }
 
     /**
@@ -70,6 +69,8 @@ public class ThreadNode<RIfc, QIfc> extends GenericWrapper {
 
         }
     }
+
+
 
 
     Runnable runnableTask = () -> {

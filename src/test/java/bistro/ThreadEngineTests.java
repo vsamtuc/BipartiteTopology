@@ -101,13 +101,7 @@ public class ThreadEngineTests {
         int[] arr={0,1,2};
         //Object[] obj= {arr};
         tnet.sendQuery(tnet.getSpoke(0).getNodeId(), new RemoteCallIdentifier(), arr );
-
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
+        System.out.println("ddd");
 
 
     }
