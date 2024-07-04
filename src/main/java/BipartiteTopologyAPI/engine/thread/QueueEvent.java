@@ -1,6 +1,8 @@
 package BipartiteTopologyAPI.engine.thread;
 
-public interface QueueEvent {
+import java.io.Serializable;
+
+public interface QueueEvent extends Serializable {
 
 
 

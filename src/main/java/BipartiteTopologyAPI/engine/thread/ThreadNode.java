@@ -11,7 +11,7 @@ import BipartiteTopologyAPI.engine.Query;
 import BipartiteTopologyAPI.engine.Tuple;
 import BipartiteTopologyAPI.sites.NodeId;
 
-public class ThreadNode<RIfc, QIfc> extends BufferingWrapper {
+public class ThreadNode<RIfc, QIfc> extends BufferingWrapper<QueueEvent> {
     
     // Thread that receives messages to the node
     ExecutorService executorService =
@@ -91,10 +91,11 @@ public class ThreadNode<RIfc, QIfc> extends BufferingWrapper {
  */
 
     public void start() {
-        //CatchingRunnable catchingRunnable= new CatchingRunnable(runnableTask);
+        CatchingRunnable catchingRunnable= new CatchingRunnable(runnableTask);
 
+        executorService.execute(catchingRunnable);
 
-        executorService.execute(runnableTask);
+       // executorService.execute(runnableTask);
     }
 
     /**
@@ -105,7 +106,7 @@ public class ThreadNode<RIfc, QIfc> extends BufferingWrapper {
     }
 
 
-/*
+
 
     public static class CatchingRunnable implements Runnable {
 
@@ -129,7 +130,7 @@ public class ThreadNode<RIfc, QIfc> extends BufferingWrapper {
 
 
 
-*/
+
 
 
 

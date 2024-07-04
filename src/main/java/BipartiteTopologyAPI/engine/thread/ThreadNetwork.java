@@ -13,6 +13,7 @@ import BipartiteTopologyAPI.operations.RemoteCallIdentifier;
 import BipartiteTopologyAPI.sites.NetworkDescriptor;
 import BipartiteTopologyAPI.sites.NodeId;
 import BipartiteTopologyAPI.sites.NodeType;
+import ControlAPI.Prediction;
 
 /**
  * A bistro network where each node is implemented in a separate thread in the same process.\
@@ -128,6 +129,9 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
     public void sendQueryResponse( Serializable response){
         if(response instanceof  String)
             System.out.println((String) response);
+        if(response instanceof Prediction){
+            System.out.println("The prediction is: " + ((Prediction) response).getPrediction());
+        }
     }
 
 
@@ -136,15 +140,10 @@ public class ThreadNetwork <SpokeIfc, HubIfc, QueryIfc> implements Network {
         if(destination == null){
             if (message instanceof Object[]) {
                 Object[] messagetrue = (Object[])message;//
-                sendQueryResponse((String)messagetrue[0]);
+                sendQueryResponse((Serializable) messagetrue[0]);
             }
         }else {
-            if(rpc.getCallType()==null){
-                System.out.println("heeeeeeeeeeeeeey");
-            }
-            if(rpc.getCallType()== CallType.ONE_WAY && rpc.getOperation()==null && rpc.getCallNumber()==-1){
 
-            }
 
             ThreadNode<?, ?> dest = getNode(destination);
             Message msg = new Message(source, destination, rpc, message);
